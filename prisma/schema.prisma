@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  GURU
+  ADMIN
+}
+
+enum SessionStatus {
+  AKTIF
+  SELESAI
+}
+
+enum AttendanceStatus {
+  HADIR
+  IZIN
+  SAKIT
+  ALPA
+  BELUM_TERCATAT
+}
+
+enum AttendanceMethod {
+  WAJAH
+  MANUAL
+}
+
+model Teacher {
+  id        Int      @id @default(autoincrement())
+  nama      String
+  nip       String   @unique
+  password  String
+  role      Role     @default(GURU)
+  classes   Class[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("teachers")
+}
+
+model Class {
+  id        Int                 @id @default(autoincrement())
+  nama      String
+  ruang     String?
+  teacherId Int
+  teacher   Teacher             @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  students  Student[]
+  sessions  AttendanceSession[]
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@index([teacherId])
+  @@map("classes")
+}
+
+model Student {
+  id         Int                @id @default(autoincrement())
+  nama       String
+  nis        String             @unique
+  noAbsen    Int                @default(1)
+  classId    Int
+  class      Class              @relation(fields: [classId], references: [id], onDelete: Cascade)
+  faceData   Json?
+  fotoProfil String
+  records    AttendanceRecord[]
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  @@index([classId])
+  @@map("students")
+}
+
+model AttendanceSession {
+  id          Int                @id @default(autoincrement())
+  classId     Int
+  class       Class              @relation(fields: [classId], references: [id], onDelete: Cascade)
+  tanggal     DateTime           @db.Date
+  status      SessionStatus      @default(AKTIF)
+  catatanGuru String?            @db.Text
+  records     AttendanceRecord[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([classId, tanggal])
+  @@map("attendance_sessions")
+}
+
+model AttendanceRecord {
+  id          Int               @id @default(autoincrement())
+  sessionId   Int
+  session     AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  studentId   Int
+  student     Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  status      AttendanceStatus  @default(BELUM_TERCATAT)
+  waktuPindai DateTime?
+  metode      AttendanceMethod  @default(MANUAL)
+  catatan     String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([sessionId, studentId])
+  @@index([sessionId])
+  @@index([studentId])
+  @@map("attendance_records")
+}

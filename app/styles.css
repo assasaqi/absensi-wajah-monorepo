@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    /* Scale global font size down (default browser: 16px -> 14px) */
+    font-size: 14px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    line-height: 1.45;
+  }
+}
+
+/* Custom scrollbar for clean mobile container feel */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(20, 99, 80, 0.2);
+  border-radius: 9999px;
+}
+
+/* Proportional scaling for arbitrary pixel text sizes */
+[class*="text-[22px]"] {
+  font-size: 18px !important;
+}
+[class*="text-[15px]"] {
+  font-size: 13px !important;
+}
+[class*="text-[11px]"] {
+  font-size: 10px !important;
+}
+[class*="text-[10px]"] {
+  font-size: 9px !important;
+}
